@@ -84,7 +84,7 @@ class simple_agent():
         
         answer = self.llm(self.messages)['parsed_output']
         self.messages.append({"role": "assistant", "content": answer})
-        return self.output_parser(answer)
+        return answer,self.output_parser(answer)
     
     def repair(self, compile_errors):
         if len(compile_errors)==0:
