@@ -2,7 +2,7 @@ import os, shutil, json
 from pathlib import Path
 
 class claude_code():
-    def __init__(self, workspace, template_path, evaluator, task_id):
+    def __init__(self, template_path, evaluator, task_id):
         self.template_path = template_path
         self.evaluator = evaluator
         self.task_id = task_id
