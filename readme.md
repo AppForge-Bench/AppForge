@@ -62,7 +62,7 @@ git clone https://github.com/AppForge-Bench/AppForge
 
 cd AppForge
 pip install -e .
-# or run examples:
+# or to run examples:
 pip install -e .[example]
 ```
 
