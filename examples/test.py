@@ -43,6 +43,9 @@ if __name__ == "__main__":
     ap.add_argument('--fuzz', action='store_true',
                     help="whether to run tests only or tests and fuzz both")
     
+    ap.add_argument('--record_video', action='store_true',
+                    help="whether to record videos when testing")
+    
     ap.add_argument('--start_id', type=int, default=0,
                     help="range of tested apps (inclusive)")
     ap.add_argument('--end_id', type=int, default=100,
@@ -57,11 +60,11 @@ if __name__ == "__main__":
     os.makedirs(args.base_folder,exist_ok=True)
     if args.use_docker:
         evaluator = AppForge(args.runs, base_folder = Path(args.base_folder).resolve(), use_docker=True, \
-            docker_name=args.docker_name, docker_port=args.docker_port)
+            docker_name=args.docker_name, docker_port=args.docker_port, record_video=args.record_video)
     else:
         assert args.sdk_path and args.bench_folder, 'Android SDK and Benchmark folder not provided!'
         evaluator = AppForge(args.runs, base_folder = Path(args.base_folder).resolve(), emulator_id=args.emulator_id,\
-            bench_folder = Path(args.bench_folder).resolve(),sdk_path = Path(args.sdk_path).resolve())
+            bench_folder = Path(args.bench_folder).resolve(),sdk_path = Path(args.sdk_path).resolve(), record_video=args.record_video)
     
     base_folder_path = Path(args.base_folder)
     done = {}
