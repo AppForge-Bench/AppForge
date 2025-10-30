@@ -74,14 +74,14 @@ pip install -e .[example]
 We provide a example with *test.py* under *examples*. A quick test with qwen3coder on taskid=54 (a calculator app) can be run through (for **Docker** users):
 
 ```
-python examples/test.py --use_docker --docker_port=6088 \
+python examples/test.py --use_docker --docker_port=6080 \
 --model=qwen3coder --runs=example_qwen3 --api_key_path=<api_key_path> --start_id 54 --end_id 54
 ```
 
 In case you don't have access to the model, you can run with option *--naive*, which implements a naive solution of making no change on the base template.
 
 ```
-python examples/test.py --use_docker --docker_port=6088 \
+python examples/test.py --use_docker --docker_port=6080 \
 --model=naive --runs=example_naive --start_id 54 --end_id 54
 ```
 
