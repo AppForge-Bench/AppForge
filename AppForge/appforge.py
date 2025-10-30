@@ -52,6 +52,7 @@ class AppForge:
         self.use_docker = use_docker
         self.raw_folder = self.app_folder / 'raw_output'
         self.raw_folder.mkdir(parents=True, exist_ok=True)
+        (self.app_folder / 'workspace').mkdir(parents=True, exist_ok=True)
        
         if self.use_docker:
             self.docker_folder = self.docker_base_folder / runs
@@ -127,6 +128,8 @@ class AppForge:
         return self.description(task_id)['task']
     def apk_folder(self, task_id):
         return self.app_folder / str(task_id)
+    def workspace(self, task_id):
+        return self.app_folder / 'workspace' / str(task_id)
     def compile_log(self, task_id):
         return self.apk_folder(task_id) / 'compile.log'
     def raw_log_file(self, task_id):
@@ -145,6 +148,9 @@ class AppForge:
         return self.app_folder / str(task_id) / str(task_id) /'app'/'build'/'outputs'/'apk'/'debug'/'app-debug.apk'     
     def docker_apk_folder(self, task_id):
         return self.docker_folder / str(task_id) 
+        
+    def docker_workspace(self, task_id):
+        return self.docker_folder / 'workspace' / str(task_id)
     def docker_json_file(self, task_id):
         return self.docker_apk_folder(task_id) / 'changed.json'
     def docker_direct_apk_path(self, task_id):
