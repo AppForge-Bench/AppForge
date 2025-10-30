@@ -47,7 +47,7 @@ Make sure you have Android Studio and SDK installed on your machine. For users w
 Download evaluation repo and install dependencies.
 
 ```
-git pull https://github.com/AppForge-Bench/AppForge
+git pull https://github.com/AppForge-Bench/AppForge_Bench
 cd AppForge_Bench
 pip install -r requirements.txt
 
