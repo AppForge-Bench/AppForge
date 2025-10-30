@@ -28,7 +28,8 @@ class AppForge:
                  sdk_path: Optional[Path] = None,
                  bench_folder: Optional[Path] = None,
                  docker_name: str = 'zenithfocuslight/appforge:latest',
-                 docker_port: int = 6080
+                 docker_port: int = 6080,
+                 record_video: bool = False
                  ):
         """
         Initialize the AppForge instance.
@@ -42,6 +43,7 @@ class AppForge:
             bench_folder (Optional[Path]): Path to benchmark folder. Required if not using Docker.
             docker_name (str): Docker image name to use. Defaults to 'zenithfocuslight/appforge:latest'.
             docker_port (int): Port to expose from Docker container. Defaults to 6080.
+            record_video (bool): whether to record video
         """
         assert (use_docker ^ (emulator_id is not None)), \
             'We must choose one and only one option of docker or local emulator for evaluation!'
@@ -53,6 +55,7 @@ class AppForge:
         self.raw_folder = self.app_folder / 'raw_output'
         self.raw_folder.mkdir(parents=True, exist_ok=True)
         (self.app_folder / 'workspace').mkdir(parents=True, exist_ok=True)
+        (self.app_folder / 'videos').mkdir(parents=True, exist_ok=True)
        
         if self.use_docker:
             self.docker_folder = self.docker_base_folder / runs
@@ -145,16 +148,20 @@ class AppForge:
     def fuzz_result_path(self, task_id):
         return self.app_folder / str(task_id) / 'fuzz_result.json'
     def direct_apk_path(self, task_id):
-        return self.app_folder / str(task_id) / str(task_id) /'app'/'build'/'outputs'/'apk'/'debug'/'app-debug.apk'     
+        return self.app_folder / str(task_id) / str(task_id) /'app'/'build'/'outputs'/'apk'/'debug'/'app-debug.apk' 
+    def video_path(self, task_id):
+        return self.app_folder / 'videos'/ f'{str(task_id)}.mp4'
+        
     def docker_apk_folder(self, task_id):
         return self.docker_folder / str(task_id) 
-        
     def docker_workspace(self, task_id):
         return self.docker_folder / 'workspace' / str(task_id)
     def docker_json_file(self, task_id):
         return self.docker_apk_folder(task_id) / 'changed.json'
     def docker_direct_apk_path(self, task_id):
         return self.docker_folder / str(task_id) / str(task_id) /'app'/'build'/'outputs'/'apk'/'debug'/'app-debug.apk'     
+    def docker_video_path(self, task_id):
+        return self.docker_folder / 'videos'/ f'{str(task_id)}.mp4'
     
     def ensure_emulator(self):
         """
@@ -252,14 +259,38 @@ class AppForge:
 
         if self.direct_apk_path(task_id).exists():
             if self.use_docker:
+                if self.record_video:
+                    cmd = f'adb shell screenrecord {str(self.docker_video_path(task_id))} &'
+                    output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
+                    cmd = 'echo $!'
+                    output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
+                    pid = int(output.strip())
+                    
                 cmd = f'''python3 evaluate_app.py     --apk-path="{str(self.docker_direct_apk_path(task_id))}"  \
                 --test no_fuzz  --package-name="{self.task_name(task_id)}"     --device-id="{self.emulator_id}"    --task="{self.task_name(task_id)}" '''
                 output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
+
+                if self.record_video:
+                    cmd = f'kill {pid}'
+                    output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
             else:
+                if self.record_video:
+                    cmd = f'adb shell screenrecord {str(self.video_path(task_id))} &'
+                    results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
+                    cmd = 'echo $!'
+                    results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
+                    output,err = results.stdout, results.stderr 
+                    pid = int(output.strip())
+                    
                 cmd = f'''python evaluate_app.py     --apk-path="{str(self.direct_apk_path(task_id))}"   \
                 --test no_fuzz  --package-name="{self.task_name(task_id)}"     --device-id="{self.emulator_id}"    --task="{self.task_name(task_id)}" '''
                 results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
                 output,err = results.stdout, results.stderr 
+                
+                if self.record_video:
+                    cmd = f'kill {pid}'
+                    results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
+                    
         else:
             output = 'Compilation Failure!'
             
