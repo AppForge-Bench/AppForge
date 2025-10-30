@@ -16,7 +16,7 @@ if __name__ == "__main__":
     
     ap.add_argument('--use_docker', action='store_true',
                     help="whether to use docker")
-    ap.add_argument('--docker_name', default='',
+    ap.add_argument('--docker_name', default='zenithfocuslight/appforge:latest',
                     help="docker image name; most of the occasions default name is ok")
     ap.add_argument('--docker_port', type=int, default=6080,
                     help="docker port")
