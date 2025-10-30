@@ -56,6 +56,7 @@ class AppForge:
         self.raw_folder.mkdir(parents=True, exist_ok=True)
         (self.app_folder / 'workspace').mkdir(parents=True, exist_ok=True)
         (self.app_folder / 'videos').mkdir(parents=True, exist_ok=True)
+        self.record_video = record_video
        
         if self.use_docker:
             self.docker_folder = self.docker_base_folder / runs
