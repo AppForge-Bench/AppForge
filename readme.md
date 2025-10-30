@@ -99,6 +99,8 @@ python examples/test.py --emulator_id  emulator-5554 --bench_folder /mnt/AppForg
 --model=qwen3coder --runs=example_qwen3 --api_key_path=dash_scope.key --start_id 0 --end_id 1 
 ```
 
-To activate self-fix with compilation feedback, set parameter *--self_fix_attempts*. 
+To activate self-fix with compilation feedback, set parameter value *--self_fix_attempts*. 
+
+To record videos when testing, set parameter option *--record_video*.
 
 More detailed running parameters can be seen in the source code.
