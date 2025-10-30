@@ -71,32 +71,32 @@ pip install -e .[example]
 
 ### 🔰 Quick Start Example
 
-We provide a example with *test.py* under *examples*. A quick test with qwen3coder can be run through (for **Docker** users):
+We provide a example with *test.py* under *examples*. A quick test with qwen3coder on taskid=54 (a calculator app) can be run through (for **Docker** users):
 
 ```
 python examples/test.py --use_docker --docker_port=6088 \
---model=qwen3coder --runs=example_qwen3 --api_key_path=<api_key_path> --start_id 0 --end_id 1 
+--model=qwen3coder --runs=example_qwen3 --api_key_path=<api_key_path> --start_id 54 --end_id 54
 ```
 
 In case you don't have access to the model, you can run with option *--naive*, which implements a naive solution of making no change on the base template.
 
 ```
 python examples/test.py --use_docker --docker_port=6088 \
---model=naive --runs=example_naive --start_id 0 --end_id 1
+--model=naive --runs=example_naive --start_id 54 --end_id 54
 ```
 
 Similarly, we can run following code with **local emulator**s:
 
 ```
 python examples/test.py --emulator_id <emulator_id> --bench_folder <position_where_you_pull_the_AppBench_forge> --sdk_path <sdk_path> \
---model=qwen3coder --runs=example_qwen3 --api_key_path=<api_key_path> --start_id 0 --end_id 1 
+--model=qwen3coder --runs=example_qwen3 --api_key_path=<api_key_path> --start_id 54 --end_id 54
 ```
 
 For example on our machine we run following command:
 
 ```
 python examples/test.py --emulator_id  emulator-5554 --bench_folder /mnt/AppForge-Bench --sdk_path /home/Android/sdk \
---model=qwen3coder --runs=example_qwen3 --api_key_path=dash_scope.key --start_id 0 --end_id 1 
+--model=qwen3coder --runs=example_qwen3 --api_key_path=dash_scope.key --start_id 54 --end_id 54 
 ```
 
 To activate self-fix with compilation feedback, set parameter value *--self_fix_attempts*. 
