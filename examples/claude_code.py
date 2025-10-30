@@ -3,10 +3,10 @@ from pathlib import Path
 
 class claude_code():
     def __init__(self, workspace, template_path, evaluator, task_id):
-        self.workspace = workspace
         self.template_path = template_path
         self.evaluator = evaluator
         self.task_id = task_id
+        self.workspace = self.evaluator.workspace(self.task_id)
         
         
     def simple_prompt(self, description):
@@ -22,7 +22,7 @@ and exactly match the attributes when implementing the widgets.
 You should directly modify the file in the given file directory to implement the app.
 '''
         if self.evaluator.use_docker:
-            docker_cmd = 'docker  exec -it  -w  {self.evaluator.docker_apk_folder(self.task_id)} {self.evaluator.container.id} ./gradlew build'
+            docker_cmd = 'docker  exec -it  -w  {self.evaluator.docker_workspace(self.task_id)} {self.evaluator.container.id} ./gradlew build'
             user_prompt += f"You can use '{docker_cmd}' command to compile your code."        
         else:
             user_prompt += "You can use './gradlew build' command to compile your code."        
