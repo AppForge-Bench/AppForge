@@ -72,11 +72,9 @@ class AppForge:
                 self.container = client.containers.get(existing_docker_id)
             else:
                 print(f'AppForge: Starting docker {docker_name}...')
-                host_user_uid = os.getuid()
-                host_user_gid = os.getgid()
+
                 self.container = client.containers.run(
                     docker_name,
-                    user=f'{host_user_uid}:{host_user_gid}',
                     ports={f'{docker_port}/tcp': docker_port},  
                     devices=['/dev/kvm:/dev/kvm'], 
                     detach=True,
