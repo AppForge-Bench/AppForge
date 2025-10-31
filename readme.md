@@ -138,4 +138,4 @@ To record videos when testing, set parameter option *--record_video*.
 More detailed running parameters can be seen in the source code.
 
 ### Possible Problems
-If you find yourself encounter '[Errno 13] Permission denied' when running our evaluator in docker, try *chmod 777 -r <base_folder>* whchi is *chmod 777 -r runs* in our default setting.
+If you find yourself encounter '[Errno 13] Permission denied' when running our evaluator in docker, try *chmod -R 777 <base_folder>* whchi is *chmod -R 777 runs* in our default setting.
