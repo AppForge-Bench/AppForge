@@ -23,6 +23,12 @@ if __name__ == "__main__":
     ap.add_argument("--emulator_id", default="emulator-5554",
                     help="adb device id, such as 'emulator-5554'")
     
+    ap.add_argument('--use_existing_docker', action='store_true',
+                    help="where to use exsiting docker")
+    ap.add_argument('--existing_docker_id', type=str, default=None,
+                    help="if use, which docker")
+
+    
     ap.add_argument('--base_folder', default = 'runs',
                     help="where to put generated apks")
     # ap.add_argument('--template_path', default = 'compiler/templates/empty_activity')
@@ -60,7 +66,8 @@ if __name__ == "__main__":
     os.makedirs(args.base_folder,exist_ok=True)
     if args.use_docker:
         evaluator = AppForge(args.runs, base_folder = Path(args.base_folder).resolve(), use_docker=True, \
-            docker_name=args.docker_name, docker_port=args.docker_port, record_video=args.record_video)
+            docker_name=args.docker_name, docker_port=args.docker_port, record_video=args.record_video,
+            use_existing_docker=args.use_existing_docker, existing_docker_id=args.existing_docker_id)
     else:
         assert args.sdk_path and args.bench_folder, 'Android SDK and Benchmark folder not provided!'
         evaluator = AppForge(args.runs, base_folder = Path(args.base_folder).resolve(), emulator_id=args.emulator_id,\
