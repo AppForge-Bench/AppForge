@@ -106,10 +106,13 @@ python examples/test.py --use_docker --use_existing_docker --existing_docker_id 
 --model=qwen3coder --runs=example_qwen3 --api_key_path=<api_key_path> --start_id 54 --end_id 54 --self_fix_attempts 1
 ```
 
-In case you don't have access to the model, you can run with option *--naive*, which implements a naive solution of making no change on the base template.
+In case you don't have access to the model, you can run with option *--naive*, which implements a naive solution of making no change on the base template:
 
 ```
 python examples/test.py --use_docker --docker_port=6080 \
+--model=naive --runs=example_naive --start_id 54 --end_id 54 --self_fix_attempts 1
+# or
+python examples/test.py --use_docker  --use_existing_docker --existing_docker_id <docker_id>  \
 --model=naive --runs=example_naive --start_id 54 --end_id 54 --self_fix_attempts 1
 ```
 
