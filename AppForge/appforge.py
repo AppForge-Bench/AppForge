@@ -3,7 +3,7 @@ from typing import Optional
 import json,subprocess,time
 import docker
 from pathlib import Path
-
+import os
 
 from .extracts import extract_error, extract_fuzz, extract_test
 from .utils import remove_directory, sumup_json, compare_folder
@@ -29,7 +29,9 @@ class AppForge:
                  bench_folder: Optional[Path] = None,
                  docker_name: str = 'zenithfocuslight/appforge:latest',
                  docker_port: int = 6080,
-                 record_video: bool = False
+                 record_video: bool = False,
+                 use_existing_docker: bool = False,
+                 existing_docker_id: Optional[str] = None,
                  ):
         """
         Initialize the AppForge instance.
@@ -44,6 +46,8 @@ class AppForge:
             docker_name (str): Docker image name to use. Defaults to 'zenithfocuslight/appforge:latest'.
             docker_port (int): Port to expose from Docker container. Defaults to 6080.
             record_video (bool): whether to record video
+            use_existing_docker (bool): whether to use existing docker
+            existing_docker_id (str): if yes, use which one
         """
         assert (use_docker ^ (emulator_id is not None)), \
             'We must choose one and only one option of docker or local emulator for evaluation!'
@@ -52,6 +56,7 @@ class AppForge:
         self.app_folder = base_folder / runs
         self.app_folder.mkdir(parents=True, exist_ok=True)
         self.use_docker = use_docker
+        self.use_existing_docker = use_existing_docker
         self.raw_folder = self.app_folder / 'raw_output'
         self.raw_folder.mkdir(parents=True, exist_ok=True)
         (self.app_folder / 'workspace').mkdir(parents=True, exist_ok=True)
@@ -62,26 +67,33 @@ class AppForge:
             self.docker_folder = self.docker_base_folder / runs
             self.emulator_id='emulator-5554'
             client = docker.from_env()
-            
-            print(f'AppForge: Starting docker {docker_name}...')
-            self.container = client.containers.run(
-                docker_name,
-                ports={f'{docker_port}/tcp': docker_port},  
-                devices=['/dev/kvm:/dev/kvm'], 
-                detach=True,
-                volumes={
-                    str(self.base_folder): {  # 主机目录
-                        'bind': str(self.docker_base_folder),  # 容器内目录
-                        'mode': 'rw'  # 读写模式
-                    }
-                },
-                privileged=True,
-            )   
+            if self.use_existing_docker:
+                print(f'AppForge: Directly Using docker {docker_name}...')
+                self.container = client.containers.get(existing_docker_id)
+            else:
+                print(f'AppForge: Starting docker {docker_name}...')
+                host_user_uid = os.getuid()
+                host_user_gid = os.getgid()
+                self.container = client.containers.run(
+                    docker_name,
+                    user=f'{host_user_uid}:{host_user_gid}',
+                    ports={f'{docker_port}/tcp': docker_port},  
+                    devices=['/dev/kvm:/dev/kvm'], 
+                    detach=True,
+                    volumes={
+                        str(self.base_folder): {  # 主机目录
+                            'bind': str(self.docker_base_folder),  # 容器内目录
+                            'mode': 'rw'  # 读写模式
+                        }
+                    },
+                    privileged=True,
+                )   
             print('AppForge: Waiting emulator on docker to get online...')
             while True:
                 print('AppForge: This might take a while (2-3min)...')
                 try:
                     self.ensure_emulator()
+                    print('AppForge: Emulator confirmed...')
                     break
                 except:
                     time.sleep(10)    
@@ -96,7 +108,7 @@ class AppForge:
         """
         Clean up resources and stop Docker container if used.
         """
-        if self.use_docker:
+        if self.use_docker and not self.use_existing_docker:
             print('AppForge: Shutting down docker...')
             self.container.stop()
             self.container.remove()
