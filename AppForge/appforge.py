@@ -163,7 +163,7 @@ class AppForge:
     def direct_apk_path(self, task_id):
         return self.app_folder / str(task_id) / str(task_id) /'app'/'build'/'outputs'/'apk'/'debug'/'app-debug.apk' 
     def video_path(self, task_id):
-        return self.app_folder / 'videos'/ f'{str(task_id)}.mp4'
+        return self.app_folder / 'videos'
         
     def docker_apk_folder(self, task_id):
         return self.docker_folder / str(task_id) 
@@ -174,7 +174,7 @@ class AppForge:
     def docker_direct_apk_path(self, task_id):
         return self.docker_folder / str(task_id) / str(task_id) /'app'/'build'/'outputs'/'apk'/'debug'/'app-debug.apk'     
     def docker_video_path(self, task_id):
-        return self.docker_folder / 'videos'/ f'{str(task_id)}.mp4'
+        return self.docker_folder / 'videos'
     
     def ensure_emulator(self):
         """
@@ -200,6 +200,13 @@ class AppForge:
             str: Compilation errors if any, empty string if successful.
         """
         print(f'AppForge: Compiling on {task_id}...')
+        
+        if self.use_docker and self.apk_folder(task_id).exists():
+            cmd = f"rm -r {str(task_id) }"
+            output = self.container.exec_run(cmd,workdir=str(self.docker_apk_folder(task_id))).output.decode()
+            # print(output)
+         
+        
         remove_directory(self.apk_folder(task_id))
         self.apk_folder(task_id).mkdir()
 
@@ -273,7 +280,7 @@ class AppForge:
         if self.direct_apk_path(task_id).exists():
             if self.use_docker:
                 if self.record_video:
-                    cmd = f'adb shell screenrecord {str(self.docker_video_path(task_id))} &'
+                    cmd = f'adb shell screenrecord /sdcard/{task_id}.mp4 &'
                     output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
                     cmd = 'echo $!'
                     output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
@@ -286,9 +293,12 @@ class AppForge:
                 if self.record_video:
                     cmd = f'kill {pid}'
                     output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
+                    cmd = f'adb pull /sdcard/{task_id}.mp4'
+                    output = self.container.exec_run(cmd,workdir=str(self.docker_video_path(task_id))).output.decode()
+                    
             else:
                 if self.record_video:
-                    cmd = f'adb shell screenrecord {str(self.video_path(task_id))} &'
+                    cmd = f'adb shell screenrecord /sdcard/{task_id}.mp4 &'
                     results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
                     cmd = 'echo $!'
                     results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
@@ -303,6 +313,8 @@ class AppForge:
                 if self.record_video:
                     cmd = f'kill {pid}'
                     results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
+                    cmd = f'adb pull /sdcard/{task_id}.mp4'
+                    results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.video_path(task_id)))
                     
         else:
             output = 'Compilation Failure!'
