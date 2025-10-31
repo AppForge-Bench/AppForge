@@ -280,9 +280,7 @@ class AppForge:
         if self.direct_apk_path(task_id).exists():
             if self.use_docker:
                 if self.record_video:
-                    cmd = f'adb shell screenrecord /sdcard/{task_id}.mp4 &'
-                    output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
-                    cmd = 'echo $!'
+                    cmd = f'/bin/sh -c "adb shell screenrecord /sdcard/{task_id}.mp4 & echo $!"'
                     output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
                     pid = int(output.strip())
                     
@@ -298,10 +296,10 @@ class AppForge:
                     
             else:
                 if self.record_video:
-                    cmd = f'adb shell screenrecord /sdcard/{task_id}.mp4 &'
+                    cmd = f'adb shell screenrecord /sdcard/{task_id}.mp4 & echo $!'
                     results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
-                    cmd = 'echo $!'
-                    results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
+                    # cmd = 'echo $!'
+                    # results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
                     output,err = results.stdout, results.stderr 
                     pid = int(output.strip())
                     
