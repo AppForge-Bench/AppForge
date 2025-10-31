@@ -31,7 +31,7 @@ docker image pull zenithfocuslight/appforge:latest
 ```
 You can check whether you can successfully run the docker image by:
 ```
-docker run --rm -d -p 6080:6080  --device /dev/kvm zenithfocuslight/appforge:latest
+docker run --rm -p 6080:6080  --device /dev/kvm zenithfocuslight/appforge:latest
 ```
 but you don't have to keep it run when running our code for we'll start a new one.
 
@@ -70,36 +70,65 @@ pip install -e .[example]
 
 
 ### 🔰 Quick Start Example
-
+#### 🔰 Quick Start with Docker
 We provide a example with *test.py* under *examples*. A quick test with qwen3coder on taskid=54 (a calculator app) can be run through (for **Docker** users):
 
 ```
 python examples/test.py --use_docker --docker_port=6080 \
---model=qwen3coder --runs=example_qwen3 --api_key_path=<api_key_path> --start_id 54 --end_id 54
+--model=qwen3coder --runs=example_qwen3 --api_key_path=<api_key_path> --start_id 54 --end_id 54 --self_fix_attempts 1
+```
+
+Another option is to use a existing running docker image by passing *--use_existing_docker*  and *--existing_docker_id*, requiring start a docker at first:
+
+```
+docker run --detach \
+    --publish <docker_port>:<docker_port> \
+    --device /dev/kvm:/dev/kvm \
+    --volume "<base_folder>:<docker_base_folder>:rw" \
+    zenithfocuslight/appforge:latest
+```
+
+which is 
+
+```
+mkdir runs
+docker run --detach \
+    --publish 6080:6080 \
+    --device /dev/kvm:/dev/kvm \
+    --volume "./runs:/AppDev-Bench/AppDev-Bench/runs:rw" \
+    zenithfocuslight/appforge:latest
+```
+
+in our default setting. Then run:
+
+```
+python examples/test.py --use_docker --use_existing_docker --existing_docker_id <docker_id> \
+--model=qwen3coder --runs=example_qwen3 --api_key_path=<api_key_path> --start_id 54 --end_id 54 --self_fix_attempts 1
 ```
 
 In case you don't have access to the model, you can run with option *--naive*, which implements a naive solution of making no change on the base template.
 
 ```
 python examples/test.py --use_docker --docker_port=6080 \
---model=naive --runs=example_naive --start_id 54 --end_id 54
+--model=naive --runs=example_naive --start_id 54 --end_id 54 --self_fix_attempts 1
 ```
 
+#### 🔰 Quick Start with Local Emulator
 Similarly, we can run following code with **local emulator**s:
 
 ```
 python examples/test.py --emulator_id <emulator_id> --bench_folder <position_where_you_pull_the_AppBench_forge> --sdk_path <sdk_path> \
---model=qwen3coder --runs=example_qwen3 --api_key_path=<api_key_path> --start_id 54 --end_id 54
+--model=qwen3coder --runs=example_qwen3 --api_key_path=<api_key_path> --start_id 54 --end_id 54 --self_fix_attempts 1
 ```
 
 For example on our machine we run following command:
 
 ```
 python examples/test.py --emulator_id  emulator-5554 --bench_folder /mnt/AppForge-Bench --sdk_path /home/Android/sdk \
---model=qwen3coder --runs=example_qwen3 --api_key_path=dash_scope.key --start_id 54 --end_id 54 
+--model=qwen3coder --runs=example_qwen3 --api_key_path=dash_scope.key --start_id 54 --end_id 54 --self_fix_attempts 1
 ```
 
-To activate self-fix with compilation feedback, set parameter value *--self_fix_attempts*. 
+To activate self-fix with more or less compilation feedback, set parameter value *--self_fix_attempts*. 
 
 To record videos when testing, set parameter option *--record_video*.
 
