@@ -288,9 +288,9 @@ class AppForge:
 
                 if self.record_video:
                     cmd = f'kill {pid}'
-                    output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
+                    _ = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
                     cmd = f'adb pull /sdcard/{task_id}.mp4'
-                    output = self.container.exec_run(cmd,workdir=str(self.docker_video_path(task_id))).output.decode()
+                    _ = self.container.exec_run(cmd,workdir=str(self.docker_video_path(task_id))).output.decode()
                     
             else:
                 if self.record_video:
@@ -308,9 +308,9 @@ class AppForge:
                 
                 if self.record_video:
                     cmd = f'kill {pid}'
-                    results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
+                    _ = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
                     cmd = f'adb pull /sdcard/{task_id}.mp4'
-                    results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.video_path(task_id)))
+                    _ = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.video_path(task_id)))
                     
         else:
             output = 'Compilation Failure!'
