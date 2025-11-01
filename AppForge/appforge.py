@@ -276,6 +276,9 @@ class AppForge:
 
 
         if self.direct_apk_path(task_id).exists():
+            if self.record_video:
+                if (self.video_path / f'{task_id}.mp4').exists():
+                    (self.video_path / f'{task_id}.mp4').unlink()
             if self.use_docker:
                 if self.record_video:
                     cmd = f'/bin/sh -c "adb shell screenrecord /sdcard/{task_id}.mp4 & echo $!"'
