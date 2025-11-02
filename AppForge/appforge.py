@@ -277,30 +277,28 @@ class AppForge:
 
         if self.direct_apk_path(task_id).exists():
             if self.record_video:
-                if (self.video_path / f'{task_id}.mp4').exists():
-                    (self.video_path / f'{task_id}.mp4').unlink()
+                if (self.video_path(task_id) / f'{task_id}.mp4').exists():
+                    (self.video_path(task_id) / f'{task_id}.mp4').unlink()
             if self.use_docker:
                 if self.record_video:
-                    cmd = f'/bin/sh -c "adb shell screenrecord /sdcard/{task_id}.mp4 & echo $!"'
+                    cmd = f'/bin/sh -c "adb shell screenrecord  /sdcard/{task_id}.mp4 & echo $!"'
                     output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
                     pid = int(output.strip())
                     
-                cmd = f'''python3 evaluate_app.py     --apk-path="{str(self.docker_direct_apk_path(task_id))}"  \
+                cmd = f'''python3 evaluate_app.py   --apk-path="{str(self.docker_direct_apk_path(task_id))}"  \
                 --test no_fuzz  --package-name="{self.task_name(task_id)}"     --device-id="{self.emulator_id}"    --task="{self.task_name(task_id)}" '''
                 output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
 
                 if self.record_video:
-                    cmd = f'kill {pid}'
-                    _ = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
+                    time.sleep(300)
+                    # _ = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
                     cmd = f'adb pull /sdcard/{task_id}.mp4'
                     _ = self.container.exec_run(cmd,workdir=str(self.docker_video_path(task_id))).output.decode()
                     
             else:
                 if self.record_video:
-                    cmd = f'adb shell screenrecord /sdcard/{task_id}.mp4 & echo $!'
+                    cmd = f'adb shell screenrecord  /sdcard/{task_id}.mp4 & echo $!'
                     results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
-                    # cmd = 'echo $!'
-                    # results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
                     output,err = results.stdout, results.stderr 
                     pid = int(output.strip())
                     
@@ -310,13 +308,17 @@ class AppForge:
                 output,err = results.stdout, results.stderr 
                 
                 if self.record_video:
-                    cmd = f'kill {pid}'
-                    _ = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
+                    # cmd = f'kill {pid}'
+                    # cmd = 'adb shell pkill -l SIGINT screenrecord'
+                    # _ = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
+                    
+                    time.sleep(300)
                     cmd = f'adb pull /sdcard/{task_id}.mp4'
                     _ = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.video_path(task_id)))
-                    
+                  
         else:
             output = 'Compilation Failure!'
+        self.ensure_emulator()  
             
         with open(self.test_log(task_id),'w+') as file:
             file.write(output)
