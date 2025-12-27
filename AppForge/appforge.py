@@ -355,17 +355,19 @@ class AppForge:
 
         if self.direct_apk_path(task_id).exists():
             if self.use_docker:
-                cmd = f'''python3 evaluate_app.py     --apk-path="{str(self.docker_direct_apk_path(task_id))}"  \
+                cmd = f'''timeout 1800 python3 evaluate_app.py     --apk-path="{str(self.docker_direct_apk_path(task_id))}"  \
                 --test only_fuzz  --package-name="{self.task_name(task_id)}"     --device-id="{self.emulator_id}"    --task="{self.task_name(task_id)}" '''
                 output = self.container.exec_run(cmd,workdir=str(self.docker_bench_folder)).output.decode()
             else:
-                cmd = f'''python evaluate_app.py     --apk-path="{str(self.direct_apk_path(task_id))}"   \
+                cmd = f'''timeout 1800 python evaluate_app.py     --apk-path="{str(self.direct_apk_path(task_id))}"   \
                 --test only_fuzz  --package-name="{self.task_name(task_id)}"     --device-id="{self.emulator_id}"    --task="{self.task_name(task_id)}" '''
                 results = subprocess.run(cmd, capture_output=True,shell=True,text=True,cwd=str(self.bench_folder))
                 output,err = results.stdout, results.stderr 
         else:
             output = 'Compilation Failure!'
-            
+        
+        if len(output)==0:
+            print(f'AppForge: Fuzz error on task {task_id}, please double check')    
         with open(self.fuzz_log(task_id),'w+') as file:
             file.write(output)
         result = extract_fuzz(output)
