@@ -131,11 +131,14 @@ python examples/test.py --emulator_id  emulator-5554 --bench_folder /mnt/AppForg
 --model=qwen3coder --runs=example_qwen3 --api_key_path=dash_scope.key --start_id 63 --end_id 63 --self_fix_attempts 1
 ```
 
+#### 🔰 Other Configurations
 To activate self-fix with more or less compilation feedback, set parameter value *--self_fix_attempts*. 
 
 To record videos when testing, set parameter option *--record_video*.
 
-More detailed running parameters can be seen in the source code.
+The tasks are in https://github.com/AppForge-Bench/AppForge/blob/main/tasks/tasks.json (0-indexed).
+
+More detailed running parameters can be seen in the source code and the document https://appforge-bench.github.io/code-docs/modules.html.
 
 ### Possible Problems
 If you find yourself encounter '[Errno 13] Permission denied' when running our evaluator in docker, try *sudo chmod -R 777 <base_folder>* whchi is *sudo chmod -R 777 runs* in our default setting.
